@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Meeting Waiting Page</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f8f9fa;
+            flex-direction: column;
+        }
+        .waiting-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .waiting-message {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .spinner-border {
+            margin-bottom: 20px;
+        }
+        .user-details {
+            text-align: left;
+     
+            margin-bottom: 20px;
+        }
+        .user-details p {
+            margin: 5px 0;
+        }
+        #video-container {
+            text-align: center;
+        }
+        #video-preview {
+            width: 320px;
+            height: 240px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        #play-button {
+            margin-top: 10px;
+        }
+        #controls {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="waiting-container">
+        <h2 class="waiting-message">Please wait, you will be granted access soon.</h2>
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <div class="user-details">
+        <h4>User Details</h4>
+        <p><strong>Name:</strong> John Doe</p>
+        <p><strong>Email:</strong> john.doe@example.com</p>
+        <p><strong>Phone:</strong> +1 123-456-7890</p>
+        <p><strong>Country:</strong> United States</p>
+    </div>
+    <div id="video-container">
+        <video id="video-preview" autoplay></video>
+        <div id="controls">
+            <button id="toggle-audio" class="btn btn-primary">Turn OFF Audio</button>
+            <button id="toggle-video" class="btn btn-primary">Turn OFF Video</button>
+        </div>
+    </div>
+    
+    <script>
+        // Get the video preview element and play button
+        const videoPreview = document.getElementById('video-preview');
+        const toggleAudioButton = document.getElementById('toggle-audio');
+        const toggleVideoButton = document.getElementById('toggle-video');
+        let audioEnabled = true;
+        let videoEnabled = true;
+        let stream;
+        
+        // Request access to the user's webcam and microphone
+        navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+            .then(userStream => {
+                stream = userStream;
+                // Display the webcam stream in the video preview element
+                videoPreview.srcObject = stream;
+                videoPreview.onloadedmetadata = function () {
+                    videoPreview.play();
+                    videoPreview.style.display = 'block';
+                    toggleAudioButton.disabled = false;
+                    toggleVideoButton.disabled = false;
+                };
+            })
+            .catch(error => {
+                console.log('Error accessing webcam and microphone:', error);
+                toggleAudioButton.disabled = true;
+                toggleVideoButton.disabled = true;
+            });
+        
+        // Add event listener to the toggle audio button
+        toggleAudioButton.addEventListener('click', () => {
+            audioEnabled = !audioEnabled;
+            stream.getAudioTracks().forEach(track => {
+                track.enabled = audioEnabled;
+            });
+            toggleAudioButton.textContent = audioEnabled ? 'Turn OFF Audio' : 'Turn ON Audio';
+        });
+        
+        // Add event listener to the toggle video button
+        toggleVideoButton.addEventListener('click', () => {
+            videoEnabled = !videoEnabled;
+            stream.getVideoTracks().forEach(track => {
+                track.enabled = videoEnabled;
+            });
+            toggleVideoButton.textContent = videoEnabled ? 'Turn OFF Video' : 'Turn ON Video';
+        });
+    </script>
+</body>
+</html>
